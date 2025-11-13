@@ -1,0 +1,10 @@
+[install]
+# 使用精确版本
+exact = true
+
+[install.scopes]
+# 配置私有包的 registry
+
+[test]
+# 测试配置
+preload = []

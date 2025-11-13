@@ -4,8 +4,15 @@ import type { User, Feed, Article } from '@/types/electron';
 
 const api = window.electronAPI;
 
+// 本地存储的 key
+const STORAGE_KEYS = {
+  CURRENT_USER_ID: 'rss_current_user_id',
+  CURRENT_FEED_ID: 'rss_current_feed_id',
+};
+
 export const useRssStore = defineStore('rss', () => {
   const currentUser = ref<User | null>(null);
+  const currentFeedId = ref<string | null>(null);
   const users = ref<User[]>([]);
   const feeds = ref<Feed[]>([]);
   const articles = ref<Article[]>([]);
@@ -58,6 +65,8 @@ export const useRssStore = defineStore('rss', () => {
       const result = await api.user.getById(userId);
       if (result.success && result.data) {
         currentUser.value = result.data;
+        // 保存到本地存储
+        localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, userId);
         await fetchFeedsByUser(userId);
         await fetchUnreadCount(userId);
       } else {
@@ -67,6 +76,31 @@ export const useRssStore = defineStore('rss', () => {
       error.value = e.message;
     } finally {
       loading.value = false;
+    }
+  }
+
+  function setCurrentFeedId(feedId: string | null) {
+    currentFeedId.value = feedId;
+    // 保存到本地存储
+    if (feedId) {
+      localStorage.setItem(STORAGE_KEYS.CURRENT_FEED_ID, feedId);
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.CURRENT_FEED_ID);
+    }
+  }
+
+  // 恢复上次的状态
+  async function restoreLastState() {
+    const savedUserId = localStorage.getItem(STORAGE_KEYS.CURRENT_USER_ID);
+    const savedFeedId = localStorage.getItem(STORAGE_KEYS.CURRENT_FEED_ID);
+
+    if (savedUserId) {
+      await setCurrentUser(savedUserId);
+      
+      // 恢复订阅源选择状态
+      if (savedFeedId && savedFeedId !== 'null') {
+        currentFeedId.value = savedFeedId;
+      }
     }
   }
 
@@ -200,7 +234,7 @@ export const useRssStore = defineStore('rss', () => {
 
   async function markArticleAsRead(articleId: string, isRead: boolean) {
     try {
-      const result = await api.article.markAsRead(articleId, isRead);
+      const result = await api.article.markAsRead(articleId, isRead, currentUser.value?.id);
       if (result.success && result.data) {
         const index = articles.value.findIndex(a => a.id === articleId);
         if (index !== -1) {
@@ -219,7 +253,7 @@ export const useRssStore = defineStore('rss', () => {
 
   async function toggleArticleStar(articleId: string, isStarred: boolean) {
     try {
-      const result = await api.article.toggleStar(articleId, isStarred);
+      const result = await api.article.toggleStar(articleId, isStarred, currentUser.value?.id);
       if (result.success && result.data) {
         const index = articles.value.findIndex(a => a.id === articleId);
         if (index !== -1) {
@@ -246,6 +280,7 @@ export const useRssStore = defineStore('rss', () => {
 
   return {
     currentUser,
+    currentFeedId,
     users,
     feeds,
     articles,
@@ -255,6 +290,8 @@ export const useRssStore = defineStore('rss', () => {
     createUser,
     fetchUsers,
     setCurrentUser,
+    setCurrentFeedId,
+    restoreLastState,
     createFeed,
     fetchFeedsByUser,
     deleteFeed,

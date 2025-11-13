@@ -22,6 +22,7 @@
     "@electron-forge/shared-types": "7.10.2",
     "@libsql/darwin-arm64": "0.5.22",
     "@types/bun": "latest",
+    "@types/nodemailer": "^6.4.14",
     "electron": "39.0.0"
   },
   "dependencies": {
@@ -31,6 +32,7 @@
     "drizzle-kit": "0.31.6",
     "drizzle-orm": "0.44.7",
     "electron-squirrel-startup": "^1.0.1",
+    "nodemailer": "^6.9.7",
     "rss-parser": "3.13.0"
   }
 }

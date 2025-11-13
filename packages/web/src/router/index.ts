@@ -13,14 +13,14 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/Users.vue'),
   },
   {
-    path: '/feeds',
-    name: 'Feeds',
-    component: () => import('@/views/Feeds.vue'),
+    path: '/stats',
+    name: 'Stats',
+    component: () => import('@/views/Stats.vue'),
   },
   {
-    path: '/articles',
-    name: 'Articles',
-    component: () => import('@/views/Articles.vue'),
+    path: '/article/:id',
+    name: 'ArticleDetail',
+    component: () => import('@/views/ArticleDetail.vue'),
   },
 ];
 

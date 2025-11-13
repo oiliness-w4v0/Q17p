@@ -3,6 +3,7 @@ import { db } from '../db';
 import { articles, feeds } from '../db/schema';
 import { eq, and, desc, inArray } from 'drizzle-orm';
 import type { NewArticle, Article } from '../db/schema';
+import { updateDailyStats } from '../services/stats';
 
 // 批量创建文章
 ipcMain.handle('article:createBatch', async (_, articlesData: Omit<NewArticle, 'id' | 'createdAt' | 'updatedAt'>[]) => {
@@ -71,13 +72,23 @@ ipcMain.handle('article:getById', async (_, articleId: string) => {
 });
 
 // 标记文章为已读/未读
-ipcMain.handle('article:markAsRead', async (_, articleId: string, isRead: boolean) => {
+ipcMain.handle('article:markAsRead', async (_, articleId: string, isRead: boolean, userId?: string) => {
   try {
     const [article] = await db
       .update(articles)
       .set({ isRead, updatedAt: new Date() })
       .where(eq(articles.id, articleId))
       .returning();
+    
+    // 如果标记为已读且提供了userId，更新统计
+    if (isRead && userId) {
+      try {
+        await updateDailyStats(userId, { articlesRead: 1 });
+      } catch (error) {
+        console.error('更新阅读统计失败:', error);
+      }
+    }
+    
     return { success: true, data: article };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -85,13 +96,23 @@ ipcMain.handle('article:markAsRead', async (_, articleId: string, isRead: boolea
 });
 
 // 标记文章为收藏/取消收藏
-ipcMain.handle('article:toggleStar', async (_, articleId: string, isStarred: boolean) => {
+ipcMain.handle('article:toggleStar', async (_, articleId: string, isStarred: boolean, userId?: string) => {
   try {
     const [article] = await db
       .update(articles)
       .set({ isStarred, updatedAt: new Date() })
       .where(eq(articles.id, articleId))
       .returning();
+    
+    // 如果标记为收藏且提供了userId，更新统计
+    if (isStarred && userId) {
+      try {
+        await updateDailyStats(userId, { articlesStarred: 1 });
+      } catch (error) {
+        console.error('更新收藏统计失败:', error);
+      }
+    }
+    
     return { success: true, data: article };
   } catch (error: any) {
     return { success: false, error: error.message };

@@ -4,6 +4,38 @@
   box-sizing: border-box;
 }
 
+:root {
+  /* 浅色主题 */
+  --bg-primary: #ffffff;
+  --bg-secondary: #fafafa;
+  --bg-tertiary: #f5f5f5;
+  --border-color: #e0e0e0;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-tertiary: #999999;
+  --accent-color: #42b983;
+  --accent-hover: #369970;
+  --error-bg: #fee;
+  --error-text: #c33;
+  --shadow: rgba(0, 0, 0, 0.05);
+}
+
+.dark {
+  /* 暗色主题 */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #242424;
+  --bg-tertiary: #2a2a2a;
+  --border-color: #3a3a3a;
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --text-tertiary: #808080;
+  --accent-color: #42b983;
+  --accent-hover: #369970;
+  --error-bg: #4a2020;
+  --error-text: #ff6b6b;
+  --shadow: rgba(0, 0, 0, 0.3);
+}
+
 html,
 body,
 #app {
@@ -17,4 +49,28 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-size: 13px;
+  line-height: 1.5;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* 全局滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
 }

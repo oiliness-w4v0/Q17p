@@ -60,6 +60,43 @@ export interface RssFetchResult {
   error?: string;
 }
 
+export interface EmailLog {
+  id: string;
+  userId: string;
+  articleId?: string | null;
+  recipientEmail: string;
+  articleTitle: string;
+  articleLink: string;
+  success: boolean;
+  errorMessage?: string | null;
+  createdAt: Date;
+}
+
+export interface DailyReadingStat {
+  id?: string;
+  userId?: string;
+  date: string;
+  articlesRead: number;
+  articlesStarred: number;
+  emailsSent: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface OverallStats {
+  articles: {
+    total: number;
+    read: number;
+    starred: number;
+    unread: number;
+  };
+  emails: {
+    total: number;
+    successful: number;
+    failed: number;
+  };
+}
+
 export interface ElectronAPI {
   user: {
     create: (data: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => Promise<IpcResponse<User>>;
@@ -83,10 +120,24 @@ export interface ElectronAPI {
     getByFeedId: (feedId: string, limit?: number, offset?: number) => Promise<IpcResponse<Article[]>>;
     getByUserId: (userId: string, limit?: number, offset?: number) => Promise<IpcResponse<Article[]>>;
     getById: (articleId: string) => Promise<IpcResponse<Article>>;
-    markAsRead: (articleId: string, isRead: boolean) => Promise<IpcResponse<Article>>;
-    toggleStar: (articleId: string, isStarred: boolean) => Promise<IpcResponse<Article>>;
+    markAsRead: (articleId: string, isRead: boolean, userId?: string) => Promise<IpcResponse<Article>>;
+    toggleStar: (articleId: string, isStarred: boolean, userId?: string) => Promise<IpcResponse<Article>>;
     delete: (articleId: string) => Promise<IpcResponse>;
     getUnreadCount: (userId: string) => Promise<IpcResponse<number>>;
+  };
+  email: {
+    shareArticle: (to: string, article: {
+      title: string;
+      link: string;
+      author?: string;
+      pubDate?: string;
+      description?: string;
+    }, userId?: string, articleId?: string) => Promise<IpcResponse>;
+  };
+  stats: {
+    getEmailLogs: (userId: string, limit?: number) => Promise<IpcResponse<EmailLog[]>>;
+    getDailyStats: (userId: string, days?: number) => Promise<IpcResponse<DailyReadingStat[]>>;
+    getOverallStats: (userId: string) => Promise<IpcResponse<OverallStats>>;
   };
 }
 

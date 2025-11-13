@@ -80,7 +80,7 @@ export async function fetchFeedArticles(feedId: string): Promise<RssFetchResult>
       }
 
       // 提取内容
-      let content = item.content || item['content:encoded'] || item.contentSnippet || null;
+      let content = item['content:encoded'] || item.content || item.contentSnippet || null;
 
       // 提取分类
       let categories: string[] = [];
